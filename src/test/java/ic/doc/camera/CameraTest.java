@@ -8,8 +8,7 @@ import org.junit.Test;
 public class CameraTest {
   private Camera camera;
 
-  @Rule
-  public JUnitRuleMockery context = new JUnitRuleMockery();
+  @Rule public JUnitRuleMockery context = new JUnitRuleMockery();
 
   private Sensor sensor = context.mock(Sensor.class);
   private MemoryCard memoryCard = context.mock(MemoryCard.class);
@@ -18,9 +17,12 @@ public class CameraTest {
   public void switchingTheCameraOnPowersUpTheSensor() {
     camera = new Camera(sensor, memoryCard);
 
-    context.checking(new Expectations() {{
-      exactly(1).of(sensor).powerUp();
-    }});
+    context.checking(
+        new Expectations() {
+          {
+            exactly(1).of(sensor).powerUp();
+          }
+        });
 
     camera.powerOn();
   }
@@ -29,9 +31,12 @@ public class CameraTest {
   public void switchingTheCameraOffPowersDownTheSensor() {
     camera = new Camera(sensor, memoryCard);
 
-    context.checking(new Expectations() {{
-      exactly(1).of(sensor).powerDown();
-    }});
+    context.checking(
+        new Expectations() {
+          {
+            exactly(1).of(sensor).powerDown();
+          }
+        });
 
     camera.powerOff();
   }
@@ -41,12 +46,15 @@ public class CameraTest {
     camera = new Camera(sensor, memoryCard);
     byte[] mockedSensorReadData = {1, 2, 3, 4};
 
-    context.checking(new Expectations() {{
-      ignoring(sensor).powerUp();
-      exactly(1).of(sensor).readData();
-      will(returnValue(mockedSensorReadData));
-      exactly(1).of(memoryCard).write(mockedSensorReadData);
-    }});
+    context.checking(
+        new Expectations() {
+          {
+            ignoring(sensor).powerUp();
+            exactly(1).of(sensor).readData();
+            will(returnValue(mockedSensorReadData));
+            exactly(1).of(memoryCard).write(mockedSensorReadData);
+          }
+        });
 
     camera.powerOn();
     camera.pressShutter();
@@ -57,10 +65,13 @@ public class CameraTest {
     // Camera power is off by default
     camera = new Camera(sensor, memoryCard);
 
-    context.checking(new Expectations() {{
-      never(sensor).readData();
-      never(memoryCard).write(with(any(byte[].class)));
-    }});
+    context.checking(
+        new Expectations() {
+          {
+            never(sensor).readData();
+            never(memoryCard).write(with(any(byte[].class)));
+          }
+        });
 
     camera.pressShutter();
   }
@@ -69,15 +80,38 @@ public class CameraTest {
   public void switchingTheCameraOffDoesNotPowerDownTheSensorIfDataIsCurrentlyBeingWritten() {
     camera = new Camera(sensor, memoryCard);
 
-    context.checking(new Expectations() {{
-      ignoring(sensor).powerUp();
-      ignoring(sensor).readData();
-      ignoring(memoryCard).write(with(any(byte[].class)));
-      never(sensor).powerDown();
-    }});
+    context.checking(
+        new Expectations() {
+          {
+            ignoring(sensor).powerUp();
+            ignoring(sensor).readData();
+            ignoring(memoryCard).write(with(any(byte[].class)));
+            never(sensor).powerDown();
+          }
+        });
 
     camera.powerOn();
     camera.pressShutter();
     camera.powerOff();
+  }
+
+  @Test
+  public void onceWritingTheDataHasCompletedThenTheCameraPowersDownTheSensor() {
+    camera = new Camera(sensor, memoryCard);
+
+    context.checking(
+        new Expectations() {
+          {
+            ignoring(sensor).powerUp();
+            ignoring(sensor).readData();
+            ignoring(memoryCard).write(with(any(byte[].class)));
+            exactly(1).of(sensor).powerDown();
+          }
+        });
+
+    camera.powerOn();
+    camera.pressShutter();
+    camera.powerOff();
+    camera.writeComplete();
   }
 }
