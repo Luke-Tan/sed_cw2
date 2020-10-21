@@ -64,4 +64,20 @@ public class CameraTest {
 
     camera.pressShutter();
   }
+
+  @Test
+  public void switchingTheCameraOffDoesNotPowerDownTheSensorIfDataIsCurrentlyBeingWritten() {
+    camera = new Camera(sensor, memoryCard);
+
+    context.checking(new Expectations() {{
+      ignoring(sensor).powerUp();
+      ignoring(sensor).readData();
+      ignoring(memoryCard).write(with(any(byte[].class)));
+      never(sensor).powerDown();
+    }});
+
+    camera.powerOn();
+    camera.pressShutter();
+    camera.powerOff();
+  }
 }
