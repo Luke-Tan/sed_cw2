@@ -114,4 +114,18 @@ public class CameraTest {
     camera.powerOff();
     camera.writeComplete();
   }
+
+  @Test
+  public void callingWriteCompleteShouldNotPowerDownTheSensorIfPowerDownHasNotBeenScheduled() {
+    camera = new Camera(sensor, memoryCard);
+
+    context.checking(
+        new Expectations() {
+          {
+            never(sensor).powerDown();
+          }
+        });
+
+    camera.writeComplete();
+  }
 }
