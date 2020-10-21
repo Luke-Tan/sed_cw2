@@ -7,8 +7,8 @@ version = '1.0.0'
 
 description = """Mock Objects Exercise"""
 
-sourceCompatibility = 1.11
-targetCompatibility = 1.11
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
