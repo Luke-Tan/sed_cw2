@@ -52,4 +52,16 @@ public class CameraTest {
     camera.pressShutter();
   }
 
+  @Test
+  public void pressingTheShutterWhenThePowerIsOffDoesNothing() {
+    // Camera power is off by default
+    camera = new Camera(sensor, memoryCard);
+
+    context.checking(new Expectations() {{
+      never(sensor).readData();
+      never(memoryCard).write(with(any(byte[].class)));
+    }});
+
+    camera.pressShutter();
+  }
 }
